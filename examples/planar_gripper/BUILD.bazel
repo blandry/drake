@@ -47,6 +47,38 @@ drake_cc_library(
     ],
 )
 
+drake_cc_library(
+    name = "brick_static_equilibrium_constraint",
+    srcs = ["brick_static_equilibrium_constraint.cc"],
+    hdrs = ["brick_static_equilibrium_constraint.h"],
+    deps = [
+        ":gripper_brick",
+        "//solvers:constraint",
+        "//solvers:mathematical_program",
+        "//multibody/plant",
+        "//multibody/inverse_kinematics:kinematic_constraint",
+        "//math:autodiff",
+    ],
+)
+
+drake_py_binary(
+    name = "planar_finger_simulation",
+    srcs = ["planar_finger_simulation.py"],
+    add_test_rule = 1,
+    data = [
+        "//examples/planar_gripper:1dof_brick.sdf",
+        "//examples/planar_gripper:planar_finger.sdf",
+    ],
+    test_rule_args = [
+        "--target_realtime_rate=0",
+        "--simulation_time=0.1",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//bindings/pydrake",
+    ],
+)
+
 drake_cc_binary(
     name = "planar_gripper_simulation",
     srcs = ["planar_gripper_simulation.cc"],
@@ -79,20 +111,43 @@ drake_cc_binary(
     ],
 )
 
-drake_py_binary(
-    name = "planar_finger_simulation",
-    srcs = ["planar_finger_simulation.py"],
-    add_test_rule = 1,
+drake_cc_library(
+    name = "gripper_brick",
+    srcs = ["gripper_brick.cc"],
+    hdrs = ["gripper_brick.h"],
     data = [
         "//examples/planar_gripper:1dof_brick.sdf",
-        "//examples/planar_gripper:planar_finger.sdf",
+        "//examples/planar_gripper:brick.sdf",
+        "//examples/planar_gripper:planar_brick.sdf",
+        "//examples/planar_gripper:planar_gripper.sdf",
     ],
-    test_rule_args = [
-        "--target_realtime_rate=0",
-        "--simulation_time=0.1",
-    ],
-    visibility = ["//visibility:public"],
     deps = [
-        "//bindings/pydrake",
+        "//common:find_resource",
+        "//geometry:geometry_visualization",
+        "//multibody/parsing",
+        "//multibody/plant",
+        "//systems/framework:diagram",
+        "//systems/analysis:simulator",
+    ],
+)
+
+drake_cc_binary(
+    name = "reorient_ik_demo",
+    testonly = 1,
+    srcs = ["reorient_ik_demo.cc"],
+    deps = [
+        ":brick_static_equilibrium_constraint",
+        ":gripper_brick",
+        "//multibody/inverse_kinematics",
+        "//solvers:solve",
+    ],
+)
+
+drake_cc_googletest(
+    name = "brick_static_equilibrium_constraint_test",
+    deps = [
+        ":brick_static_equilibrium_constraint",
+        "//math:compute_numerical_gradient",
+        "//common/test_utilities:eigen_matrix_compare",
     ],
 )
