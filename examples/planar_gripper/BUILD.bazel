@@ -58,7 +58,7 @@ drake_cc_library(
         "//multibody/inverse_kinematics:kinematic_constraint",
         "//multibody/plant",
         "//solvers:constraint",
-        "//solvers:mathematical_program",
+        "//solvers:mathematical_program_lite",
     ],
 )
 

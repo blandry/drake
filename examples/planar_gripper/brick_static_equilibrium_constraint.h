@@ -64,6 +64,6 @@ AddBrickStaticEquilibriumConstraint(
     const Eigen::Ref<const VectorX<symbolic::Variable>> &q_vars,
     systems::Context<double> *plant_mutable_context,
     solvers::MathematicalProgram *prog);
-}  // planar_gripper
+}  // namespace planar_gripper
 }  // namespace examples
 }  // namespace drake

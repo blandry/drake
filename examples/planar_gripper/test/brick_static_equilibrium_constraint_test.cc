@@ -6,6 +6,7 @@
 
 namespace drake {
 namespace examples {
+namespace planar_gripper {
 GTEST_TEST(BrickStaticEquilibriumNonlinearConstraint, TestEval) {
   GripperBrickSystem<double> gripper_brick_system;
   std::vector<std::pair<Finger, BrickFace>> finger_face_contacts;
@@ -84,5 +85,6 @@ GTEST_TEST(BrickStaticEquilibriumNonlinearConstraint, TestEval) {
   EXPECT_TRUE(
       CompareMatrices(math::autoDiffToGradientMatrix(y_autodiff), J, 1E-5));
 }
+}  // namespace planar_gripper
 }  // namespace examples
 }  // namespace drake
