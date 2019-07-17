@@ -182,3 +182,32 @@ drake_cc_googletest(
         "//math:compute_numerical_gradient",
     ],
 )
+
+drake_cc_binary(
+    name = "planar_finger_trajopt",
+    testonly = 1,
+    srcs = ["planar_finger_trajopt.cc"],
+    data = [
+        "//examples/planar_gripper:1dof_brick.sdf",
+        "//examples/planar_gripper:planar_finger.sdf",
+    ],
+    deps = [
+        "//common:find_resource",
+        "//common:text_logging_gflags",
+        "//geometry:geometry_visualization",
+        "//multibody/parsing",
+        "//multibody/plant",
+        "//systems/analysis:simulator",
+        "//systems/controllers:inverse_dynamics_controller",
+        "//systems/framework:diagram",
+        "//systems/primitives:adder",
+        "//systems/primitives:constant_value_source",
+        "//systems/primitives:constant_vector_source",
+        "//systems/primitives:multiplexer",
+        "//systems/primitives:sine",
+        "@gflags",
+        "//systems/trajectory_optimization:direct_collocation",
+        "//systems/trajectory_optimization:direct_transcription",
+        "//solvers:solve",
+    ],
+)
