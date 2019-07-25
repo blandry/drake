@@ -19,6 +19,24 @@ load(
     "drake_cc_vector_gen_library",
 )
 
+drake_py_binary(
+    name = "planar_gripper_simulation_py",
+    srcs = ["planar_gripper_simulation.py"],
+    add_test_rule = 1,
+    data = [
+        "//examples/planar_gripper:planar_brick.sdf",
+        "//examples/planar_gripper:planar_gripper.sdf",
+    ],
+    test_rule_args = [
+        "--target_realtime_rate=0",
+        "--simulation_time=0.1",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//bindings/pydrake",
+    ],
+)
+
 drake_cc_library(
     name = "planar_gripper_common",
     hdrs = ["planar_gripper_common.h"],
@@ -31,10 +49,106 @@ drake_cc_library(
 )
 
 drake_cc_library(
+    name = "brick_static_equilibrium_constraint",
+    srcs = ["brick_static_equilibrium_constraint.cc"],
+    hdrs = ["brick_static_equilibrium_constraint.h"],
+    deps = [
+        ":gripper_brick",
+        ":gripper_brick_planning_utils",
+        "//math:autodiff",
+        "//multibody/inverse_kinematics:kinematic_constraint",
+        "//multibody/plant",
+        "//solvers:constraint",
+        "//solvers:mathematical_program_lite",
+    ],
+)
+
+drake_py_binary(
+    name = "planar_finger_simulation_py",
+    srcs = ["planar_finger_simulation.py"],
+    add_test_rule = 1,
+    data = [
+        "//examples/planar_gripper:1dof_brick.sdf",
+        "//examples/planar_gripper:planar_finger.sdf",
+    ],
+    test_rule_args = [
+        "--target_realtime_rate=0",
+        "--simulation_time=0.1",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//bindings/pydrake",
+    ],
+)
+
+drake_cc_binary(
+    name = "planar_finger_simulation",
+    srcs = ["planar_finger_simulation.cc"],
+    add_test_rule = 1,
+    data = [
+        "//examples/planar_gripper:1dof_brick.sdf",
+        "//examples/planar_gripper:planar_finger.sdf",
+    ],
+    test_rule_args = [
+        "--simulation_time=0.1",
+        "--target_realtime_rate=0",
+    ],
+    deps = [
+        "//common:find_resource",
+        "//common:text_logging_gflags",
+        "//geometry:geometry_visualization",
+        "//multibody/parsing",
+        "//multibody/plant",
+        "//systems/analysis:simulator",
+        "//systems/controllers:inverse_dynamics_controller",
+        "//systems/framework:diagram",
+        "//systems/primitives:adder",
+        "//systems/primitives:constant_value_source",
+        "//systems/primitives:constant_vector_source",
+        "//systems/primitives:multiplexer",
+        "//systems/primitives:sine",
+        "@gflags",
+    ],
+)
+
+drake_cc_binary(
+    name = "planar_gripper_simulation",
+    srcs = ["planar_gripper_simulation.cc"],
+    add_test_rule = 1,
+    data = [
+        "//examples/planar_gripper:planar_brick.sdf",
+        "//examples/planar_gripper:planar_gripper.sdf",
+        "//examples/planar_gripper:postures.txt",
+    ],
+    test_rule_args = [
+        "--simulation_time=0.1",
+        "--target_realtime_rate=0",
+    ],
+    deps = [
+        ":planar_gripper_common",
+        "//common:find_resource",
+        "//common:text_logging_gflags",
+        "//geometry:geometry_visualization",
+        "//manipulation/planner:robot_plan_interpolator",
+        "//multibody/parsing",
+        "//multibody/plant",
+        "//systems/analysis:simulator",
+        "//systems/controllers:inverse_dynamics_controller",
+        "//systems/framework:diagram",
+        "//systems/lcm:lcm_interface_system",
+        "//systems/primitives:constant_value_source",
+        "//systems/primitives:constant_vector_source",
+        "@gflags",
+        "@lcmtypes_robotlocomotion",
+    ],
+)
+
+drake_cc_library(
     name = "gripper_brick",
     srcs = ["gripper_brick.cc"],
     hdrs = ["gripper_brick.h"],
     data = [
+        "//examples/planar_gripper:1dof_brick.sdf",
         "//examples/planar_gripper:planar_brick.sdf",
         "//examples/planar_gripper:planar_gripper.sdf",
     ],
@@ -53,6 +167,78 @@ drake_cc_googletest(
     name = "gripper_brick_test",
     deps = [
         ":gripper_brick",
+        "//common/test_utilities:eigen_matrix_compare",
+    ],
+)
+
+drake_cc_library(
+    name = "gripper_brick_planning_utils",
+    srcs = ["gripper_brick_planning_utils.cc"],
+    hdrs = ["gripper_brick_planning_utils.h"],
+    deps = [
+        ":gripper_brick",
+        "//multibody/inverse_kinematics:kinematic_constraint",
+        "//solvers:mathematical_program_lite",
+    ],
+)
+
+drake_cc_library(
+    name = "brick_dynamic_constraint",
+    srcs = ["brick_dynamic_constraint.cc"],
+    hdrs = ["brick_dynamic_constraint.h"],
+    deps = [
+        ":gripper_brick",
+        ":gripper_brick_planning_utils",
+        "//multibody/inverse_kinematics:kinematic_constraint",
+        "//solvers:constraint",
+    ],
+)
+
+drake_cc_library(
+    name = "gripper_brick_trajectory_optimization",
+    srcs = ["gripper_brick_trajectory_optimization.cc"],
+    hdrs = ["gripper_brick_trajectory_optimization.h"],
+    deps = [
+        ":brick_static_equilibrium_constraint",
+        ":gripper_brick",
+        "//solvers:mathematical_program_lite",
+    ],
+)
+
+drake_cc_binary(
+    name = "reorient_ik_demo",
+    testonly = 1,
+    srcs = ["reorient_ik_demo.cc"],
+    deps = [
+        ":brick_static_equilibrium_constraint",
+        ":gripper_brick",
+        "//multibody/inverse_kinematics",
+        "//solvers:solve",
+    ],
+)
+
+drake_cc_googletest(
+    name = "brick_static_equilibrium_constraint_test",
+    deps = [
+        ":brick_static_equilibrium_constraint",
+        "//common/test_utilities:eigen_matrix_compare",
+        "//math:compute_numerical_gradient",
+    ],
+)
+
+drake_cc_googletest(
+    name = "brick_dynamic_constraint_test",
+    deps = [
+        ":brick_dynamic_constraint",
+        "//common/test_utilities:eigen_matrix_compare",
+        "//math:compute_numerical_gradient",
+    ],
+)
+
+drake_cc_googletest(
+    name = "gripper_brick_trajectory_optimization_test",
+    deps = [
+        ":gripper_brick_trajectory_optimization",
         "//common/test_utilities:eigen_matrix_compare",
     ],
 )
