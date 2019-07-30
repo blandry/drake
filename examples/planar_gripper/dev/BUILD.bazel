@@ -34,6 +34,16 @@ drake_cc_library(
     ],
 )
 
+drake_cc_binary(
+    name = "gripper_brick_planning",
+    testonly = 1,
+    srcs = ["gripper_brick_planning.cc"],
+    deps = [
+        ":contact_mode_search",
+        "//examples/planar_gripper:gripper_brick",
+    ],
+)
+
 drake_cc_googletest(
     name = "contact_mode_search_test",
     deps = [
