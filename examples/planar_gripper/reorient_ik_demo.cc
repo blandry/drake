@@ -224,7 +224,8 @@ Eigen::VectorXd FindInitialPosture(
           ik0.q()(gripper_brick_system.brick_revolute_x_position_index())));
 
   Eigen::VectorXd q_guess(ik0.q().rows());
-  q_guess << 0.1, 0.2, 0.1, 0.02, 0.1, -0.2, 0.1, -0.01, 0.01;
+  // q_guess << 0.1, 0.2, 0.1, 0.02, 0.1, -0.2, 0.1, -0.01, 0.01;
+  q_guess << -0.289363, 0.952455, 0.279784, 0.00664001, -0.0682319, -1.2177, 0.201687, -0.02, -0.468482;
   auto result = solvers::Solve(ik0.prog(), q_guess);
   std::cout << result.get_solution_result() << "\n";
 
@@ -322,22 +323,22 @@ Eigen::VectorXd FindPosture2(
 
 int DoMain() {
   GripperBrickHelper<double> gripper_brick_system;
-  auto print_joint_start_index = [&gripper_brick_system](
-                                     const std::string& joint_name) {
-    const int position_start_index = gripper_brick_system.plant()
-                                         .GetJointByName(joint_name)
-                                         .position_start();
-    std::cout << joint_name << " starts at " << position_start_index << "\n";
-  };
-  print_joint_start_index("finger1_ShoulderJoint");
-  print_joint_start_index("finger1_ElbowJoint");
-  print_joint_start_index("finger2_ShoulderJoint");
-  print_joint_start_index("finger2_ElbowJoint");
-  print_joint_start_index("finger3_ShoulderJoint");
-  print_joint_start_index("finger3_ElbowJoint");
-  print_joint_start_index("brick_translate_y_joint");
-  print_joint_start_index("brick_translate_z_joint");
-  print_joint_start_index("brick_revolute_x_joint");
+  // auto print_joint_start_index = [&gripper_brick_system](
+  //                                    const std::string& joint_name) {
+  //   const int position_start_index = gripper_brick_system.plant()
+  //                                        .GetJointByName(joint_name)
+  //                                        .position_start();
+  //   std::cout << joint_name << " starts at " << position_start_index << "\n";
+  // };
+  // print_joint_start_index("finger1_ShoulderJoint");
+  // print_joint_start_index("finger1_ElbowJoint");
+  // print_joint_start_index("finger2_ShoulderJoint");
+  // print_joint_start_index("finger2_ElbowJoint");
+  // print_joint_start_index("finger3_ShoulderJoint");
+  // print_joint_start_index("finger3_ElbowJoint");
+  // print_joint_start_index("brick_translate_y_joint");
+  // print_joint_start_index("brick_translate_z_joint");
+  // print_joint_start_index("brick_revolute_x_joint");
 
   auto diagram_context = gripper_brick_system.diagram().CreateDefaultContext();
   systems::Context<double>* plant_mutable_context =
